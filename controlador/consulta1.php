@@ -202,7 +202,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         </header>
 
         <main>
-            <h2>📚 Gestión de Préstamos y Devoluciones</h2> 
+            <h2>📗 Gestión de Préstamos y Devoluciones</h2> 
 
             <form action="" method="post">
                 <p>
