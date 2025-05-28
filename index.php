@@ -16,10 +16,19 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
-        body {
+        html, body {
+            width: 100%;
+            height: 100%;
             background: #f4f6f9;
             color: #333;
+        }
+
+        body {
             padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
         }
 
         /* Encabezado */
@@ -30,6 +39,8 @@
             border-radius: 10px;
             text-align: center;
             margin-bottom: 30px;
+            width: 100%;
+            max-width: 960px; /* Limitamos el ancho máximo */
         }
 
         header h1 {
@@ -62,8 +73,9 @@
 
         /* Contenido principal */
         main {
-            max-width: 800px;
-            margin: auto;
+            width: 100%;
+            max-width: 960px; /* Limitamos el ancho máximo */
+            margin: 0 auto; /* Centramos el contenido */
         }
 
         /* Secciones */
@@ -103,6 +115,38 @@
         .button:hover {
             background-color: #2980b9;
         }
+
+        /* Responsividad */
+        @media (max-width: 768px) {
+            header h1 {
+                font-size: 1.8rem;
+            }
+
+            nav ul {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .button-group {
+                justify-content: center;
+            }
+
+            .button {
+                width: 100%;
+                padding: 12px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            header h1 {
+                font-size: 1.5rem;
+            }
+
+            .button {
+                font-size: 0.9rem;
+                padding: 10px 20px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -130,8 +174,8 @@
         <section>
             <h2>🔍 Consultas</h2>
             <div class="button-group">
-                <button class="button" onclick="location.href='controlador/consulta1.php'">Consulta 1</button>
-                <button class="button" onclick="location.href='controlador/consulta2.php'">Consulta 2</button>
+                <button class="button" onclick="location.href='controlador/consulta1.php'">📚 Gestión de Préstamos y Devoluciones</button>
+                <button class="button" onclick="location.href='controlador/consulta2.php'">📖Ejemplares  no  devueltos </button>
                 <button class="button" onclick="location.href='controlador/consulta3.php'">Consulta 3</button>
             </div>
         </section>
