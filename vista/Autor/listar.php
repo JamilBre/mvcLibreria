@@ -58,7 +58,6 @@ $miConsulta->execute();
     </table>
     <p><a class="button" href="../../index.php"></a>Volver</p>
     <footer style="text-align: center; font-weight: bold; margin-top: auto; margin-bottom: 10px;">
-        <p>🦎 by Manrique</p>
     </footer>
 </body>
 </html>
