@@ -9,30 +9,41 @@ $contrasenaDB = '';
 $hostPDO = "mysql:host=$hostDB;dbname=$nombreDB;";
 $miPDO = new PDO($hostPDO, $usuarioDB, $contrasenaDB);
 
-// Obtener la lista de ejemplares
-$query = $miPDO->prepare('SELECT id, idLibro FROM EJEMPLAR');
+// Obtener la lista de ejemplares con el título del libro
+$query = $miPDO->prepare('
+    SELECT EJEMPLAR.id, LIBRO.titulo 
+    FROM EJEMPLAR
+    INNER JOIN LIBRO ON EJEMPLAR.idLibro = LIBRO.id
+');
 $query->execute();
 $ejemplares = $query->fetchAll(PDO::FETCH_ASSOC);
+
+// Obtener la lista de usuarios
+$queryUsuarios = $miPDO->prepare('SELECT id, nombre FROM USUARIO');
+$queryUsuarios->execute();
+$usuarios = $queryUsuarios->fetchAll(PDO::FETCH_ASSOC);
 
 // Comprobar si se recibió datos POST
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Recogemos las variables
-    $idEjemplar = isset($_POST['idEjemplar']) ? $_POST['idEjemplar'] : null;
+    $idEjemplares = isset($_POST['idEjemplar']) ? $_POST['idEjemplar'] : [];  // Cambiar a un array
     $idUsuario = isset($_POST['idUsuario']) ? $_POST['idUsuario'] : null;
     $fechaPrestamo = isset($_POST['fechaPrestamo']) ? $_POST['fechaPrestamo'] : null;
 
-    // Preparar INSERT
-    $miInsert = $miPDO->prepare('INSERT INTO PRESTAMO (idEjemplar, idUsuario, fechaPrestamo) VALUES (:idEjemplar, :idUsuario, :fechaPrestamo)');
+    // Preparar INSERT para cada ejemplar seleccionado
+    foreach ($idEjemplares as $idEjemplar) {
+        $miInsert = $miPDO->prepare('INSERT INTO PRESTAMO (idEjemplar, idUsuario, fechaPrestamo) VALUES (:idEjemplar, :idUsuario, :fechaPrestamo)');
 
-    // Ejecutar INSERT con los datos
-    $miInsert->bindParam(':idEjemplar', $idEjemplar);
-    $miInsert->bindParam(':idUsuario', $idUsuario);
-    $miInsert->bindParam(':fechaPrestamo', $fechaPrestamo);
+        // Ejecutar INSERT con los datos proporcionados
+        $miInsert->bindParam(':idEjemplar', $idEjemplar);
+        $miInsert->bindParam(':idUsuario', $idUsuario);
+        $miInsert->bindParam(':fechaPrestamo', $fechaPrestamo);
 
-    // Ejecutar la consulta
-    $miInsert->execute();
+        // Ejecutar la consulta
+        $miInsert->execute();
+    }
 
-    // Redireccionamos a la pagina principal
+    // Redirigir a la pagina principal
     header('Location: ../index.php');
 }
 ?>
@@ -118,14 +129,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             font-size: 1.2rem; /* Igual que el título */
         }
 
-        form input, form select {
-            width: 100%;
-            padding: 12px;
-            margin-top: 5px;
-            border-radius: 6px;
-            border: 1px solid #ccc;
-            font-size: 1.2rem; /* Igual que el título */
-            box-sizing: border-box;
+        form input[type="checkbox"] {
+            margin-right: 10px;
         }
 
         form input[type="submit"] {
@@ -139,6 +144,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         form input[type="submit"]:hover {
             background-color: #2980b9;
+        }
+
+        /* Recuadro para los checkboxes */
+        .checkbox-container {
+            border: 2px solid #3498db;
+            padding: 15px;
+            border-radius: 10px;
+            background-color: #ecf6ff;
+            margin-bottom: 15px;
+        }
+
+        .checkbox-container label {
+            display: block;
+            margin: 5px 0;
         }
 
         /* Responsividad */
@@ -186,26 +205,53 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <main>
             <form action="" method="post">
                 <p>
-                    <label for="idEjemplar">ID del Ejemplar</label>
-                    <select id="idEjemplar" name="idEjemplar" required>
+                    <label for="idEjemplar">Selecciona los Ejemplares (máximo 3)</label>
+                    <div class="checkbox-container" id="ejemplaresList">
                         <?php foreach ($ejemplares as $ejemplar): ?>
-                            <option value="<?= $ejemplar['id'] ?>"><?= $ejemplar['idLibro'] ?></option>
+                            <label>
+                                <input type="checkbox" name="idEjemplar[]" value="<?= $ejemplar['id'] ?>" class="ejemplarCheckbox"> 
+                                <?= $ejemplar['titulo'] ?>
+                            </label>
+                        <?php endforeach; ?>
+                    </div>
+                </p>
+
+                <!-- Selección de Usuario -->
+                <p>
+                    <label for="idUsuario">Seleccione Usuario</label>
+                    <select id="idUsuario" name="idUsuario" required>
+                        <option value="">Seleccione un usuario</option>
+                        <?php foreach ($usuarios as $usuario): ?>
+                            <option value="<?= $usuario['id'] ?>"><?= $usuario['nombre'] ?></option>
                         <?php endforeach; ?>
                     </select>
                 </p>
-                <p>
-                    <label for="idUsuario">ID del Usuario</label>
-                    <input id="idUsuario" type="number" name="idUsuario" min="1" required>
-                </p>
+
                 <p>
                     <label for="fechaPrestamo">Fecha de Préstamo</label>
                     <input id="fechaPrestamo" type="date" name="fechaPrestamo" required>
                 </p>
+
                 <p>
                     <input type="submit" value="Registrar Préstamo">
                 </p>
             </form>
         </main>
     </div>
+
+    <script>
+        // Restringir la selección a un máximo de 3 libros
+        const checkboxes = document.querySelectorAll('.ejemplarCheckbox');
+        checkboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', function() {
+                const checkedBoxes = document.querySelectorAll('.ejemplarCheckbox:checked');
+                if (checkedBoxes.length > 3) {
+                    alert('Solo puedes seleccionar hasta 3 libros.');
+                    this.checked = false; // Desmarcar el último seleccionado
+                }
+            });
+        });
+    </script>
+
 </body>
 </html>

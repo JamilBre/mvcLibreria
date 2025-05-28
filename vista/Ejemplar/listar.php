@@ -1,66 +1,72 @@
 <?php
-//variables
+// Variables
 $hostDB = '127.0.0.1';
 $nombreDB = 'BdBiblioteca';
 $usuarioDB = 'root';
 $contrasenaDB = '';
-//conecta con la base de datos
+
+// Conecta con la base de datos
 $hostPDO = "mysql:host=$hostDB;dbname=$nombreDB;";
 $miPDO = new PDO($hostPDO, $usuarioDB, $contrasenaDB);
-//Prepara select 
-$miConsulta = $miPDO->prepare('Select * From EJEMPLAR;');
-//ejecuta consulta
-$miConsulta->execute();
 
+// Prepara select 
+$miConsulta = $miPDO->prepare('SELECT * FROM LIBRO;');
+
+// Ejecuta consulta
+$miConsulta->execute();
 ?>
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
-        <meta charset="UTF-8">
-        <title>Leer - CRUD PHP</title>
-        <style>
-            table{
-                border-collapse: collapse;
-                width: 100%;
-            }
-            table td{
-                border: 1px solid blueviolet;
-                text-align: center;
-                padding: 1.3rem;
-            }
-            .button{
-                border-radius: .5rem;
-                color: whithe;
-                background-color: #ffc9d2;
-                padding: 1rem;
-                text-decoration: none;
-            }
-        </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leer - CRUD PHP</title>
+    
+    <!-- Enlace al archivo CSS -->
+    <link rel="stylesheet" href="../css/form.css">
 </head>
 <body>
-    <p><a class="button" href="nuevo.php">Crear</a></p>
+
+    <!-- Botón "Crear" arriba de la tabla -->
+    <div class="button-container">
+        <a class="button" href="nuevo.php">Crear</a>
+    </div>
+
+    <!-- Tabla de libros -->
     <table>
         <tr>
-            <th>Codigo</th>
-            <th>Codigo del Libro</th>
-            <th>Localizacion</th>
+            <th>Código</th>
+            <th>Título</th>
+            <th>ISBN</th>
+            <th>Editorial</th>
+            <th>Páginas</th>
+            <th>Id del Autor</th>
             <td></td>
             <td></td>
         </tr>
         <?php foreach ($miConsulta as $clave => $valor): ?>
             <tr>
                 <td><?= $valor['id']; ?></td>
-                <td><?= $valor['idLibro']; ?></td>
-                <td><?= $valor['localizacion']; ?></td>
-                <!-- Se utilizará más adelante para indicar si se requiere modificar o eliminar el registra -->
+                <td><?= $valor['titulo']; ?></td>
+                <td><?= $valor['isbn']; ?></td>
+                <td><?= $valor['editorial']; ?></td>
+                <td><?= $valor['paginas']; ?></td>
+                <td><?= $valor['idAutor']; ?></td>
+                <!-- Enlaces para modificar o borrar registros -->
                 <td><a class="button" href="modificar.php?id=<?= $valor['id'] ?>">Modificar</a></td>
                 <td><a class="button" href="borrar.php?id=<?= $valor['id'] ?>">Borrar</a></td>
             </tr>
         <?php endforeach; ?>
     </table>
-    <p><a class="button" href="/guia13.01/index.php"></a>Volver</p>
+
+    <!-- Botón Volver debajo de la tabla -->
+    <div class="button-container">
+        <a class="button" href="../../index.php">Volver</a>
+    </div>
+
     <footer style="text-align: center; font-weight: bold; margin-top: auto; margin-bottom: 10px;">
-    
     </footer>
+
 </body>
 </html>
