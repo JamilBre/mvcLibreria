@@ -176,7 +176,7 @@
             <div class="button-group">
                 <button class="button" onclick="location.href='controlador/consulta1.php'">📚 Gestión de Préstamos y Devoluciones</button>
                 <button class="button" onclick="location.href='controlador/consulta2.php'">📖Ejemplares  no  devueltos </button>
-                <button class="button" onclick="location.href='controlador/consulta3.php'">Consulta 3</button>
+                <button class="button" onclick="location.href='controlador/consulta3.php'">📚 Ranking de Autores</button>
             </div>
         </section>
     </main>
