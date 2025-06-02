@@ -21,14 +21,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $miPDO = new PDO("mysql:host=$hostDB;dbname=$nombreDB;charset=utf8", $usuarioDB, $contrasenaDB);
         $miPDO->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
-        // Verificar que el autor existe
+        // Iniciar transacción
+        $miPDO->beginTransaction();
+
+        // 1. Verificar que el autor existe
         $stmt = $miPDO->prepare('SELECT 1 FROM AUTOR WHERE id = ?');
         $stmt->execute([$idAutor]);
         if (!$stmt->fetch()) {
-            die("Error: El autor seleccionado no existe");
+            throw new Exception("Error: El autor seleccionado no existe");
         }
 
-        // Insertar el libro
+        // 2. Insertar el libro
         $miInsert = $miPDO->prepare('INSERT INTO LIBRO (titulo, isbn, editorial, paginas, idAutor) 
                                    VALUES (:titulo, :isbn, :editorial, :paginas, :idAutor)');
         $miInsert->execute([
@@ -38,11 +41,29 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             'paginas' => $paginas,
             'idAutor' => $idAutor
         ]);
+        
+        // 3. Obtener el ID del libro recién insertado
+        $idLibro = $miPDO->lastInsertId();
+        
+        // 4. Crear un ejemplar por defecto para el nuevo libro
+        $miInsertEjemplar = $miPDO->prepare('INSERT INTO EJEMPLAR (idLibro, localizacion) 
+                                           VALUES (:idLibro, :localizacion)');
+        $miInsertEjemplar->execute([
+            'idLibro' => $idLibro,
+            'localizacion' => 'Estante Nuevo'
+        ]);
+
+        // Confirmar transacción
+        $miPDO->commit();
 
         header('Location: listar.php');
         exit;
-    } catch (PDOException $e) {
-        die("Error de base de datos: " . $e->getMessage());
+    } catch (Exception $e) {
+        // Revertir transacción en caso de error
+        if (isset($miPDO) && $miPDO->inTransaction()) {
+            $miPDO->rollBack();
+        }
+        die("Error: " . $e->getMessage());
     }
 }
 
@@ -64,6 +85,7 @@ try {
 <head>
     <meta charset="UTF-8">
     <title>Crear Libro</title>
+    <!-- Manteniendo tus estilos originales -->
     <style>
         .error { color: red; }
     </style>

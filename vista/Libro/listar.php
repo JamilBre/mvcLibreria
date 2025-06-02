@@ -9,8 +9,13 @@ $contrasenaDB = '';
 $hostPDO = "mysql:host=$hostDB;dbname=$nombreDB;";
 $miPDO = new PDO($hostPDO, $usuarioDB, $contrasenaDB);
 
-// Prepara select 
-$miConsulta = $miPDO->prepare('SELECT * FROM LIBRO;');
+// Consulta mejorada con JOIN para mostrar nombre del autor
+$miConsulta = $miPDO->prepare('
+    SELECT l.*, a.nombre as nombre_autor 
+    FROM LIBRO l
+    LEFT JOIN AUTOR a ON l.idAutor = a.id
+    ORDER BY l.titulo;
+');
 
 // Ejecuta consulta
 $miConsulta->execute();
@@ -41,21 +46,21 @@ $miConsulta->execute();
             <th>ISBN</th>
             <th>Editorial</th>
             <th>Páginas</th>
-            <th>Id del Autor</th>
+            <th>Autor</th> <!-- Cambiado de "Id del Autor" a "Autor" -->
             <td></td>
             <td></td>
         </tr>
-        <?php foreach ($miConsulta as $clave => $valor): ?>
+        <?php foreach ($miConsulta as $libro): ?>
             <tr>
-                <td><?= $valor['id']; ?></td>
-                <td><?= $valor['titulo']; ?></td>
-                <td><?= $valor['isbn']; ?></td>
-                <td><?= $valor['editorial']; ?></td>
-                <td><?= $valor['paginas']; ?></td>
-                <td><?= $valor['idAutor']; ?></td>
+                <td><?= $libro['id']; ?></td>
+                <td><?= $libro['titulo']; ?></td>
+                <td><?= $libro['isbn']; ?></td>
+                <td><?= $libro['editorial']; ?></td>
+                <td><?= $libro['paginas']; ?></td>
+                <td><?= $libro['nombre_autor'] ?? 'Desconocido'; ?></td> <!-- Mostrando nombre en lugar de ID -->
                 <!-- Enlaces para modificar o borrar registros -->
-                <td><a class="button" href="modificar.php?id=<?= $valor['id'] ?>">Modificar</a></td>
-                <td><a class="button" href="borrar.php?id=<?= $valor['id'] ?>">Borrar</a></td>
+                <td><a class="button" href="modificar.php?id=<?= $libro['id'] ?>">Modificar</a></td>
+                <td><a class="button" href="borrar.php?id=<?= $libro['id'] ?>" onclick="return confirm('¿Está seguro?')">Borrar</a></td>
             </tr>
         <?php endforeach; ?>
     </table>
