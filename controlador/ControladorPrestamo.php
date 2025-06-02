@@ -155,9 +155,35 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             margin-bottom: 15px;
         }
 
+        /* Contenedor desplazable para la lista de libros */
+        .scrollable-list {
+            max-height: 300px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+
         .checkbox-container label {
             display: block;
             margin: 5px 0;
+        }
+
+        /* Estilos para la barra de desplazamiento */
+        .scrollable-list::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .scrollable-list::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        .scrollable-list::-webkit-scrollbar-thumb {
+            background: #3498db;
+            border-radius: 10px;
+        }
+
+        .scrollable-list::-webkit-scrollbar-thumb:hover {
+            background: #2980b9;
         }
 
         /* Responsividad */
@@ -206,13 +232,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             <form action="" method="post">
                 <p>
                     <label for="idEjemplar">Selecciona los Ejemplares (máximo 3)</label>
-                    <div class="checkbox-container" id="ejemplaresList">
-                        <?php foreach ($ejemplares as $ejemplar): ?>
-                            <label>
-                                <input type="checkbox" name="idEjemplar[]" value="<?= $ejemplar['id'] ?>" class="ejemplarCheckbox"> 
-                                <?= $ejemplar['titulo'] ?>
-                            </label>
-                        <?php endforeach; ?>
+                    <div class="checkbox-container">
+                        <div class="scrollable-list" id="ejemplaresList">
+                            <?php foreach ($ejemplares as $ejemplar): ?>
+                                <label>
+                                    <input type="checkbox" name="idEjemplar[]" value="<?= $ejemplar['id'] ?>" class="ejemplarCheckbox"> 
+                                    <?= $ejemplar['titulo'] ?>
+                                </label>
+                            <?php endforeach; ?>
+                        </div>
                     </div>
                 </p>
 
