@@ -1,72 +1,77 @@
 <?php
-//variables
+// Variables
 $hostDB = '127.0.0.1';
 $nombreDB = 'BdBiblioteca';
 $usuarioDB = 'root';
 $contrasenaDB = '';
-//conecta con la base de datos
+
+// Conecta con la base de datos
 $hostPDO = "mysql:host=$hostDB;dbname=$nombreDB;";
 $miPDO = new PDO($hostPDO, $usuarioDB, $contrasenaDB);
-//Prepara select 
-$miConsulta = $miPDO->prepare('Select * From LIBRO;');
-//ejecuta consulta
-$miConsulta->execute();
 
+// Consulta mejorada con JOIN para mostrar nombre del autor
+$miConsulta = $miPDO->prepare('
+    SELECT l.*, a.nombre as nombre_autor 
+    FROM LIBRO l
+    LEFT JOIN AUTOR a ON l.idAutor = a.id
+    ORDER BY l.titulo;
+');
+
+// Ejecuta consulta
+$miConsulta->execute();
 ?>
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
-        <meta charset="UTF-8">
-        <title>Leer - CRUD PHP</title>
-        <style>
-            table{
-                border-collapse: collapse;
-                width: 100%;
-            }
-            table td{
-                border: 1px solid blueviolet;
-                text-align: center;
-                padding: 1.3rem;
-            }
-            .button{
-                border-radius: .5rem;
-                color: whithe;
-                background-color: #ffc9d2;
-                padding: 1rem;
-                text-decoration: none;
-            }
-        </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leer - CRUD PHP</title>
+    
+    <!-- Enlace al archivo CSS -->
+    <link rel="stylesheet" href="../css/form.css">
 </head>
 <body>
-    <p><a class="button" href="nuevo.php">Crear</a></p>
+
+    <!-- Botón "Crear" arriba de la tabla -->
+    <div class="button-container">
+        <a class="button" href="nuevo.php">Crear</a>
+    </div>
+
+    <!-- Tabla de libros -->
     <table>
         <tr>
-            <th>Codigo</th>
+            <th>Código</th>
             <th>Título</th>
             <th>ISBN</th>
             <th>Editorial</th>
-            <th>Paginas</th>
-            <th>Id del Autor</th>
+            <th>Páginas</th>
+            <th>Autor</th> <!-- Cambiado de "Id del Autor" a "Autor" -->
             <td></td>
             <td></td>
         </tr>
-        <?php foreach ($miConsulta as $clave => $valor): ?>
+        <?php foreach ($miConsulta as $libro): ?>
             <tr>
-                <td><?= $valor['id']; ?></td>
-                <td><?= $valor['titulo']; ?></td>
-                <td><?= $valor['isbn']; ?></td>
-                <td><?= $valor['editorial']; ?></td>
-                <td><?= $valor['paginas']; ?></td>
-                <td><?= $valor['idAutor']; ?></td>
-                <!-- Se utilizará más adelante para indicar si se requiere modificar o eliminar el registra -->
-                <td><a class="button" href="modificar.php?id=<?= $valor['id'] ?>">Modificar</a></td>
-                <td><a class="button" href="borrar.php?id=<?= $valor['id'] ?>">Borrar</a></td>
+                <td><?= $libro['id']; ?></td>
+                <td><?= $libro['titulo']; ?></td>
+                <td><?= $libro['isbn']; ?></td>
+                <td><?= $libro['editorial']; ?></td>
+                <td><?= $libro['paginas']; ?></td>
+                <td><?= $libro['nombre_autor'] ?? 'Desconocido'; ?></td> <!-- Mostrando nombre en lugar de ID -->
+                <!-- Enlaces para modificar o borrar registros -->
+                <td><a class="button" href="modificar.php?id=<?= $libro['id'] ?>">Modificar</a></td>
+                <td><a class="button" href="borrar.php?id=<?= $libro['id'] ?>" onclick="return confirm('¿Está seguro?')">Borrar</a></td>
             </tr>
         <?php endforeach; ?>
     </table>
-    <p><a class="button" href="../../index.php"></a>Volver</p>
-    <footer style="text-align: center; font-weight: bold; margin-top: auto; margin-bottom: 10px;">
 
+    <!-- Botón Volver debajo de la tabla -->
+    <div class="button-container">
+        <a class="button" href="../../index.php">Volver</a>
+    </div>
+
+    <footer style="text-align: center; font-weight: bold; margin-top: auto; margin-bottom: 10px;">
     </footer>
+
 </body>
 </html>
