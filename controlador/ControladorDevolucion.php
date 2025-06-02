@@ -9,8 +9,19 @@ $contrasenaDB = '';
 $hostPDO = "mysql:host=$hostDB;dbname=$nombreDB;";
 $miPDO = new PDO($hostPDO, $usuarioDB, $contrasenaDB);
 
-// Obtener la lista de préstamos sin devolución
-$query = $miPDO->prepare('SELECT id, idEjemplar, idUsuario, fechaPrestamo FROM PRESTAMO WHERE fechaDevolucion IS NULL');
+// Consulta modificada para obtener nombres en lugar de IDs
+$query = $miPDO->prepare('
+    SELECT 
+        p.id, 
+        p.fechaPrestamo,
+        l.titulo AS titulo_libro,
+        u.nombre AS nombre_usuario
+    FROM PRESTAMO p
+    JOIN EJEMPLAR e ON p.idEjemplar = e.id
+    JOIN LIBRO l ON e.idLibro = l.id
+    JOIN USUARIO u ON p.idUsuario = u.id
+    WHERE p.fechaDevolucion IS NULL
+');
 $query->execute();
 $prestamos = $query->fetchAll(PDO::FETCH_ASSOC);
 
@@ -69,7 +80,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         /* Contenedor principal */
         .container {
             width: 100%;
-            max-width: 600px; /* Igual que el formulario y el header */
+            max-width: 600px;
             margin: 0 auto;
         }
 
@@ -82,13 +93,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             text-align: center;
             margin-bottom: 30px;
             width: 100%;
-            max-width: 600px; /* Igual que el formulario */
+            max-width: 600px;
             box-sizing: border-box;
         }
 
         header h1 {
             margin: 0;
-            font-size: 1.2rem; /* Igual que los campos del formulario */
+            font-size: 1.2rem;
             word-wrap: break-word;
             line-height: 1.4;
             font-weight: bold;
@@ -114,7 +125,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             margin-bottom: 5px;
             font-weight: bold;
             color: #2c3e50;
-            font-size: 1.2rem; /* Igual que el título */
+            font-size: 1.2rem;
         }
 
         form input, form select {
@@ -123,7 +134,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
             margin-top: 5px;
             border-radius: 6px;
             border: 1px solid #ccc;
-            font-size: 1.2rem; /* Igual que el título */
+            font-size: 1.2rem;
             box-sizing: border-box;
         }
 
@@ -185,11 +196,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         <main>
             <form action="" method="post">
                 <p>
-                    <label for="idPrestamo">ID del Préstamo</label>
+                    <label for="idPrestamo">Préstamos Activos</label>
                     <select id="idPrestamo" name="idPrestamo" required>
                         <?php foreach ($prestamos as $prestamo): ?>
                             <option value="<?= $prestamo['id'] ?>">
-                                <?= "Préstamo ID: {$prestamo['id']} - Ejemplar ID: {$prestamo['idEjemplar']} - Usuario ID: {$prestamo['idUsuario']} - Fecha Préstamo: {$prestamo['fechaPrestamo']}" ?>
+                                <?= "Libro: {$prestamo['titulo_libro']} | Usuario: {$prestamo['nombre_usuario']} | Fecha: {$prestamo['fechaPrestamo']}" ?>
                             </option>
                         <?php endforeach; ?>
                     </select>
